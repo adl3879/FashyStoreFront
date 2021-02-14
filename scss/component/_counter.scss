@@ -1,0 +1,27 @@
+.counter {
+  display: flex;
+
+  div,
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    color: $color-grey;
+  }
+
+  &__btn {
+    background-color: $color-grey-3;
+    height: 30px;
+    cursor: pointer;
+    border: 1px solid $color-grey;
+  }
+
+  &__screen {
+    border: 1px solid $color-grey;
+    border-left: none;
+    border-right: none;
+    font-weight: 600;
+    font-size: 1.4rem;
+  }
+}

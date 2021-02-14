@@ -1,0 +1,68 @@
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.loading {
+  position: relative;
+
+  .spinner__b div {
+    position: absolute;
+    width: 32.8px;
+    height: 32.8px;
+    border: 4.1px solid #4d65f1;
+    border-top-color: transparent;
+    border-radius: 50%;
+  }
+
+  .spinner__b div {
+    animation: spin 0.5s linear infinite;
+    top: 102.49999999999999px;
+    left: 102.49999999999999px;
+  }
+  .spinner {
+    width: 205px;
+    height: 205px;
+    display: inline-block;
+    overflow: hidden;
+    background: transparent;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .spinner__b {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform: translateZ(0) scale(1);
+    backface-visibility: hidden;
+    transform-origin: 0 0;
+  }
+  .spinner__b div {
+    box-sizing: content-box;
+  }
+}
+
+.product-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(#000000, 0.3);
+  z-index: 2000000000;
+}
+
+.noSelect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
