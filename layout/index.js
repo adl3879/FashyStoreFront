@@ -5,6 +5,7 @@ import Home from "./home";
 import Loading from "../components/loading";
 import { gql, useQuery, NetworkStatus } from "@apollo/client";
 import SEO from "../components/head";
+import NotFound from "./NotFound";
 
 export const GET_PRODUCTS = gql`
   query($store: String!) {
@@ -37,16 +38,14 @@ const Layout = ({ children, domain }) => {
       variables: {
         store: domain
       },
-      // Setting this value to true will make the component rerender when
-      // the "networkStatus" changes, so we are able to know if it is fetching
-      // more data
+      
       notifyOnNetworkStatusChange: true,
     }
   )
 
   const loadingMorePosts = networkStatus === NetworkStatus.fetchMore
 
-  if (error) return `Error ${error}`;
+  if (error) return <NotFound />;
   if (loading && loadingMorePosts) return <Loading />;
 
   if (typeof window !== "undefined") {
