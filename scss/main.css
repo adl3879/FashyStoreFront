@@ -1270,13 +1270,13 @@ html {
 .popup {
   background-color: rgba(77, 101, 241, 0.9);
   color: #fff;
-  padding: 1rem 2rem;
+  padding: 1.8rem 2rem;
   width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
   position: fixed;
   left: 50%;
-  bottom: 3rem;
+  bottom: 2.5rem;
   -webkit-transform: translateX(-50%);
           transform: translateX(-50%);
   -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;

@@ -10,7 +10,7 @@ import Popup from "../components/popup";
 
 const  Home = ({ domain }) => {
   const { route } = useContext(RouteContext);
-  const { added, removeAdded } = useContext(CartContext);
+  const { added } = useContext(CartContext);
   const [isProduct, setIsProduct] = useState(false);
 
   useEffect(() => {
@@ -19,8 +19,6 @@ const  Home = ({ domain }) => {
     if (myParam && myParam.length > 0) {
       setIsProduct(true);
     }
-  console.log(added);
-
   })
 
   return (

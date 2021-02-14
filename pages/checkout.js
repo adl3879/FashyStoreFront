@@ -63,7 +63,7 @@ const Order = props => {
   const router = useRouter();
   const [storeId, setStoreId] = useState("");
   const { cartItems, total, handleCheckout, handleError } = useContext(CartContext);
-  const { returnHome, pushRoute } = useContext(RouteContext);
+  const { pushRoute } = useContext(RouteContext);
   const [deliveryItems, setDeliveryItems] = useState([]);
   const [deliveryPrice, setDeliveryPrice] = useState(null);
   const [orderItems, setOrderItems] = useState([]);
@@ -104,12 +104,12 @@ const Order = props => {
     update() {
       handleCheckout();
       router.push("/all");
-      returnHome();
+      pushRoute("home");
     },
     onError(_err) {
       handleError();
       router.push("/all");
-      returnHome();
+      pushRoute("home");
     }
   })
 
@@ -175,7 +175,7 @@ const Order = props => {
   const handleCancel = e => {
     e.preventDefault();
     router.push("/all");
-    returnHome();
+    pushRoute("home");
   }
 
   if (verifyLoading) return <div className="product-loading"><Loading /></div>;

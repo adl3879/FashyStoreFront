@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useContext, useEffect, useState } from "react";
 import { WhatsApp, Email, Arrow, Cancel } from "../components/icons";
-import Loading from "../components/Loading";
+import Loading from "../components/loading";
 import { RouteContext } from "../contexts/routeContext";
 
 const GET_USER_INFO = gql`
