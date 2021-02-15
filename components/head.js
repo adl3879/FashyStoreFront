@@ -28,7 +28,7 @@ const SEO = ({ store }) => {
       <meta property="og:image" content={image} />
 
       {/* <!-- Twitter --> */}
-      <meta property="twitter:card" content={image} />
+      <meta property="twitter:card" content="summary_large_image" />
       <meta property="twitter:url" content={`https://${store.url}.fashy.store/`} />
       <meta property="twitter:title" content={`${store.name} | Fashy Store`} />
       <meta property="twitter:description" content={`${store.name} online store / Order with Fashy`} />
