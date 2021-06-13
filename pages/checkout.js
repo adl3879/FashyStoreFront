@@ -11,44 +11,50 @@ import Loading from "../components/loading";
 import { useRouter } from "next/router";
 import { RouteContext } from "../contexts/routeContext";
 import { initializeApollo, addApolloState } from "../lib/apolloClient";
-import Layout, { GET_PRODUCTS } from "../layout"
+import Layout, { GET_PRODUCTS } from "../layout";
 
 const ADD_ORDER = gql`
-  mutation(
-    $store_url: String!,
-    $first_name: String!,
-    $last_name: String!,
-    $order_items: [OrderItemInput],
-    $email: String!,
-    $phone: String!,
-    $shipping: ShippingInput
-    $delivery_note: String,
-    $total_price: Int!
-  ) {
-    addOrder(
-      store_url: $store_url,
-      first_name: $first_name,
-      last_name: $last_name,
-      order_items: $order_items,
-      email: $email,
-      phone: $phone,
-      shipping: $shipping,
-      delivery_note: $delivery_note,
-      total_price: $total_price
-    ) {
+  # mutation(
+  #   $store_url: String!,
+  #   $first_name: String!,
+  #   $last_name: String!,
+  #   $order_items: [OrderItemInput],
+  #   $email: String!,
+  #   $phone: String!,
+  #   $shipping: ShippingInput
+  #   $delivery_note: String,
+  #   $total_price: Int!
+  # ) {
+  #   addOrder(
+  #     store_url: $store_url,
+  #     first_name: $first_name,
+  #     last_name: $last_name,
+  #     order_items: $order_items,
+  #     email: $email,
+  #     phone: $phone,
+  #     shipping: $shipping,
+  #     delivery_note: $delivery_note,
+  #     total_price: $total_price
+  #   ) {
+  #     _id
+  #   }
+  # }
+
+  mutation ($input: OrderInput!) {
+    addOrder(input: $input) {
       _id
     }
   }
 `;
 
 const VERIFY_PAYMENT = gql`
-  mutation($ref: String!, $order_id: ID!, $store_id: ID!) {
+  mutation ($ref: String!, $order_id: ID!, $store_id: ID!) {
     verifyPayment(ref: $ref, order_id: $order_id, store_id: $store_id)
   }
 `;
 
-const Order = props => {
-  let publicKey = "pk_test_77d74d3c0d3998d2a0baa55f86d6b97217627f09"
+const Order = (props) => {
+  let publicKey = "pk_test_77d74d3c0d3998d2a0baa55f86d6b97217627f09";
 
   const initialValues = {
     firstName: "",
@@ -58,80 +64,88 @@ const Order = props => {
     location: "",
     state: "",
     address: "",
-    notes: ""
-  }
+    notes: "",
+  };
+
   const router = useRouter();
   const [storeId, setStoreId] = useState("");
-  const { cartItems, total, handleCheckout, handleError } = useContext(CartContext);
+  const { cartItems, total, handleCheckout, handleError } =
+    useContext(CartContext);
   const { pushRoute } = useContext(RouteContext);
   const [deliveryItems, setDeliveryItems] = useState([]);
   const [deliveryPrice, setDeliveryPrice] = useState(null);
   const [orderItems, setOrderItems] = useState([]);
 
-  const {values, handleChange, handleSubmit} = useForm({ 
+  const { values, handleChange, handleSubmit } = useForm({
     initialValues,
-    onSubmit: _ => {
+    onSubmit: (_) => {
       addOrder();
-    }
+    },
   });
 
   useEffect(() => {
     setStoreId(localStorage.getItem("store-id"));
 
     let items = localStorage.getItem("delivery");
-    setDeliveryItems(JSON.parse(items))
+    setDeliveryItems(JSON.parse(items));
 
-    let price = deliveryItems.map(item => {
-      if (values.location.length > 0 && values.location === item.address) {
-        return item.price
-      }
-      return null;
-    }).filter( item => item).join("");
-    setDeliveryPrice(Number(price))
+    let price = deliveryItems
+      .map((item) => {
+        if (values.location.length > 0 && values.location === item.address) {
+          return item.price;
+        }
+        return null;
+      })
+      .filter((item) => item)
+      .join("");
+    setDeliveryPrice(Number(price));
 
     let newOrder = [];
-    cartItems.forEach(item => {
+    cartItems.forEach((item) => {
       newOrder.push({
-        product_id: item._id,
-        qty: Number(item.quantity) 
-      })
-    })
+        product: item._id,
+        qty: Number(item.quantity),
+      });
+    });
     setOrderItems(newOrder);
-  }, [setDeliveryPrice, setOrderItems, cartItems, values])
+  }, [setDeliveryPrice, setOrderItems, cartItems, values]);
 
   //verify payment
-  const [verifyPayment, { loading: verifyLoading }] = useMutation(VERIFY_PAYMENT, {
-    update() {
-      handleCheckout();
-      router.push("/all");
-      pushRoute("home");
-    },
-    onError(_err) {
-      handleError();
-      router.push("/all");
-      pushRoute("home");
+  const [verifyPayment, { loading: verifyLoading }] = useMutation(
+    VERIFY_PAYMENT,
+    {
+      update() {
+        handleCheckout();
+        router.push("/all");
+        pushRoute("home");
+      },
+      onError(_err) {
+        handleError();
+        router.push("/all");
+        pushRoute("home");
+      },
     }
-  })
+  );
 
-  const onSuccess = response => {
+  const onSuccess = (response) => {
     const orderId = localStorage.getItem("orderId");
 
     verifyPayment({
       variables: {
         ref: response.reference,
         store_id: storeId,
-        order_id: orderId
-      }
-    })
+        order_id: orderId,
+      },
+    });
   };
 
   const onClose = () => {
     // implementation for  whatever you want to do when the Paystack dialog closed.
-    console.log('closed')
-  }
+    console.log("closed");
+  };
 
   const config = {
-    reference: (new Date()).getTime(),
+    reference: new Date().getTime(),
     email: values.email,
     amount: (Number(total) + Number(deliveryPrice)) * 100, //total price
     metadata: {
@@ -139,56 +153,63 @@ const Order = props => {
       phone: values.phone,
     },
     publicKey,
-  }
+  };
   const initializePayment = usePaystackPayment(config);
 
   //submit form
   const [addOrder, { loading }] = useMutation(ADD_ORDER, {
-    update(
-      _,
-      { data: { addOrder: orderData } }
-    ) {
-      localStorage.setItem("orderId", orderData._id)
+    update(_, { data: { addOrder: orderData } }) {
+      localStorage.setItem("orderId", orderData._id);
       initializePayment(onSuccess, onClose);
     },
     onError(err) {
       console.log(err);
     },
     variables: {
-      store_url: props.domain,
-      first_name: values.firstName,
-      last_name: values.lastName,
-      order_items: orderItems,
-      shipping: {
-        state: values.state,
-        delivery_location: values.location,
-        delivery_addr: values.address,
-        delivery_fee: Number(deliveryPrice)
-      }, 
-      email: values.email,
-      phone: values.phone,
-      delivery_note: values.notes.length ?  values.notes : "%empty%",
-      total_price: Number(total) + Number(deliveryPrice)
-    }
+      input: {
+        user: "",
+        first_name: values.firstName,
+        last_name: values.lastName,
+        order_items: orderItems,
+        email: values.email,
+        phone: values.phone,
+        delivery_note: values.notes.length ? values.notes : "%empty%",
+        total_price: Number(total) + Number(deliveryPrice),
+        shipping: {
+          state: values.state,
+          location: values.location,
+          address: values.address,
+          fee: Number(deliveryPrice),
+        },
+      },
+    },
   });
 
-  const handleCancel = e => {
+  const handleCancel = (e) => {
     e.preventDefault();
     router.push("/all");
     pushRoute("home");
-  }
+  };
 
-  if (verifyLoading) return <div className="product-loading"><Loading /></div>;
+  if (verifyLoading)
+    return (
+      <div className="product-loading">
+        <Loading />
+      </div>
+    );
 
-  return(
+  return (
     <Layout domain={props.domain}>
       <div className="modal__background">
         <div className="modal modal__cart modal__checkout">
           <div className="order-header">
-            <div className="order-header-left" onClick={() => {
-              router.push("/all");
-              pushRoute("cart")
-            }}>
+            <div
+              className="order-header-left"
+              onClick={() => {
+                router.push("/all");
+                pushRoute("cart");
+              }}
+            >
               <Back />
               <h2>Cart</h2>
             </div>
@@ -200,26 +221,26 @@ const Order = props => {
             <div className="form__half">
               <div className="form__group">
                 <label htmlFor="first">First Name</label>
-                <input 
-                  type="text" 
-                  placeholder="Your First Name" 
-                  id="first" 
-                  required 
+                <input
+                  type="text"
+                  placeholder="Your First Name"
+                  id="first"
+                  required
                   name="firstName"
-                  value={values.firstName} 
+                  value={values.firstName}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form__group">
                 <label htmlFor="last">Last Name</label>
-                <input 
-                  type="text" 
-                  placeholder="Your Last Name" 
-                  id="last" 
+                <input
+                  type="text"
+                  placeholder="Your Last Name"
+                  id="last"
                   required
-                  name="lastName"  
-                  value={values.lastName} 
+                  name="lastName"
+                  value={values.lastName}
                   onChange={handleChange}
                 />
               </div>
@@ -255,23 +276,29 @@ const Order = props => {
             <div className="form__half">
               <div className="form__group">
                 <label htmlFor="location">Delivery Location</label>
-                <select id="location" onChange={handleChange} name="location" >
-                  <option disabled selected>Select Location</option>
-                  {
-                    deliveryItems.map(item => (
-                      <option key={item._id} value={item.address}>{item.address}</option>
-                    ))
-                  }
+                <select id="location" onChange={handleChange} name="location">
+                  <option disabled selected>
+                    Select Location
+                  </option>
+                  {deliveryItems.map((item) => (
+                    <option key={item._id} value={item.address}>
+                      {item.address}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="form__group">
                 <label htmlFor="state">State</label>
                 <select id="state" onChange={handleChange} name="state">
-                  <option value="0" disabled selected>Select State</option>
-                  {
-                    states.map((item, index) => (<option key={index} value={item}>{item}</option>))
-                  }
+                  <option value="0" disabled selected>
+                    Select State
+                  </option>
+                  {states.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -318,16 +345,15 @@ const Order = props => {
             </div>
 
             <button className="form__button">
-              <Spinner loading={loading}/>
+              <Spinner loading={loading} />
               Pay Now
             </button>
-
           </form>
         </div>
       </div>
     </Layout>
-  )
-}
+  );
+};
 
 export const getServerSideProps = async ({ req }) => {
   const apolloClient = initializeApollo();
@@ -336,15 +362,17 @@ export const getServerSideProps = async ({ req }) => {
   await apolloClient.query({
     query: GET_PRODUCTS,
     variables: {
-      store: domain
+      page: 1,
+      limit: 3,
+      store_url: domain,
     },
-  })
+  });
 
   return addApolloState(apolloClient, {
     props: {
-      domain: domain
+      domain: domain,
     },
-  })
-}
+  });
+};
 
 export default Order;

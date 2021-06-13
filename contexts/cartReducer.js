@@ -21,7 +21,7 @@ export const CartReducer = (state, action) => {
         })
       }
 
-      return {
+      return { 
         ...state,
         ...sumItems(state.cartItems),
         added: action.qty,

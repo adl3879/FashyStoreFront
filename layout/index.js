@@ -8,14 +8,25 @@ import SEO from "../components/head";
 import NotFound from "./NotFound";
 
 export const GET_PRODUCTS = gql`
-  query($store: String!) {
-    store(store: $store) {
-      _id
-      logo_url
-      description
-      user_id
-      url
-      name
+  query ($page: Int, $limit: Int, $store_url: String!) {
+    productsWithPagination(page: $page, limit: $limit, store_url: $store_url) {
+      paginator {
+        prev
+        next
+        currentPage
+      }
+      store {
+        _id
+        url
+        user
+        description
+        logo_url
+        name
+        deliveries {
+          address
+          price
+        }
+      }
       products {
         _id
         image_url
@@ -23,48 +34,50 @@ export const GET_PRODUCTS = gql`
         price
         total_qty
       }
-      delivery {
-        address
-        price
-      }
     }
   }
 `;
 
 const Layout = ({ children, domain }) => {
-  const { loading, error, data, networkStatus } = useQuery(
-    GET_PRODUCTS,
-    {
-      variables: {
-        store: domain
-      },
-      
-      notifyOnNetworkStatusChange: true,
-    }
-  )
+  const { loading, error, data, networkStatus } = useQuery(GET_PRODUCTS, {
+    variables: {
+      page: 1,
+      limit: 10,
+      store_url: domain,
+    },
 
-  const loadingMorePosts = networkStatus === NetworkStatus.fetchMore
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const loadingMorePosts = networkStatus === NetworkStatus.fetchMore;
 
   if (error) return <NotFound />;
   if (loading && loadingMorePosts) return <Loading />;
 
-  if (typeof window !== "undefined") {
-    localStorage.setItem("store-id", data.store._id);
-    localStorage.setItem("user", data.store.user_id);
-    localStorage.setItem("delivery", JSON.stringify(data.store.delivery));
+  if (data) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("store-id", data.productsWithPagination.store._id);
+      localStorage.setItem("user", data.productsWithPagination.store.user);
+      localStorage.setItem(
+        "deliveries",
+        JSON.stringify(data.productsWithPagination.store.deliveries)
+      );
+    }
+
+    return (
+      <div className="layout">
+        <SEO store={data.productsWithPagination.store} />
+
+        <Nav store={data.productsWithPagination.store} />
+        <CartBtn />
+        <Home products={data.productsWithPagination.products} />
+        {children}
+        <Footer name={data.productsWithPagination.store.name} />
+      </div>
+    );
   }
 
-  return (
-    <div className="layout">
-      <SEO store={data.store} />
-
-      <Nav store={data.store} />
-      <CartBtn />
-      <Home products={data.store.products} />
-      { children }
-      <Footer name={data.store.name} />
-    </div>
-  )
-}
+  return <div>&nbsp;</div>;
+};
 
 export default Layout;

@@ -19,8 +19,8 @@ const RouteContextProvider = ({ children }) => {
     dispatch({ type: "APPEND_PRODUCT", payload })
   }
 
-  const returnHome = payload => {
-    dispatch({ type: "UNDO_APPEND"});
+  const returnHome = _ => {
+    dispatch({ type: "UNDO_APPEND" });
   }
 
   const contextValues = {

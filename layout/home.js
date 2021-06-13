@@ -5,7 +5,7 @@ import { CartContext } from "../contexts/cartContext";
 import MsgModal from "../components/msgModal";
 import { RouteContext } from "../contexts/routeContext";
 
-const Home = props => { 
+const Home = (props) => {
   const { checkout, error, added } = useContext(CartContext);
   const { pushRoute, appendProduct } = useContext(RouteContext);
 
@@ -13,7 +13,7 @@ const Home = props => {
     e.preventDefault();
     pushRoute("product");
     appendProduct(id);
-  }
+  };
 
   if (props.products && !props.products.length) {
     return (
@@ -24,14 +24,18 @@ const Home = props => {
           <p>There is no product available yet!</p>
         </div>
       </div>
-    )
+    );
   }
 
-  return(
+  return (
     <div className="home">
-      {
-        props.products && props.products.map(product => (
-          <div className="home__card" key={product._id} onClick={e => handleClick(e, product._id)}>
+      {props.products &&
+        props.products.map((product) => (
+          <div
+            className="home__card"
+            key={product._id}
+            onClick={(e) => handleClick(e, product._id)}
+          >
             <div className="home__card--top">
               <img src={product.image_url} alt="ankara" />
             </div>
@@ -40,13 +44,12 @@ const Home = props => {
               <p>{formatNumber(product.price)}</p>
             </div>
           </div>
-        ))
-      }
+        ))}
 
-      { checkout && <MsgModal success /> }
-      { error && <MsgModal /> }
+      {checkout && <MsgModal success />}
+      {error && <MsgModal />}
     </div>
-  )
-}
+  );
+};
 
 export default Home;
